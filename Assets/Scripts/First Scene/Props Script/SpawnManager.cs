@@ -29,7 +29,7 @@ public class SpawnManager : MonoBehaviour
     private float xleftRange = -10, xrightRange = +13;
     private float zUpRange = 8.5f, zDownRange = -8.6f;
     private float yRange = 0.2f;
-    private int countPowerUp = 0;
+    [SerializeField] private int countPowerUp = 0;
 
     private Stopwatch timerForRemove;
     private Stopwatch timerForAdd;
@@ -53,70 +53,85 @@ public class SpawnManager : MonoBehaviour
         if (startscript)
         {
 
-            if (countEnemys.countKills > 0)
-            {
 
-                StartCoroutine(Cycle());
-                countEnemyEnd++;
-                countEnemys.countKills -= 1;
-                countPowerUp++;
-
-                if (countEnemyEnd > 19 && permissionWin)
-                {
-                    countEnemys.FinishGame();
-                    permissionWin = false;
-
-                }
-
-                countEnemy.text = "The remaining enemies:" + (20 - countEnemyEnd);
-            }
-
-            if (countEnemys.countPickup > 0 && countPowerUp > 3)
-            {
-                SpawnPowerUp();
-                countEnemys.countPickup = 0;
-                countPowerUp = 0;
-
-            }
-
-            if (timerForRemove.Elapsed.TotalSeconds > 9)
-            {
-                particles = GameObject.FindGameObjectsWithTag("Explosive");
-                for (int i = 0; i < particles.Length; i++)
-                {
-                    particles2.Add(particles[i]);
-                    Destroy(particles[i]);
-                }
-
-                timerForRemove.Reset();
-                timerForRemove.Start();
-                particles2.Clear();
+            SingleEnemySpawnOnKill();
 
 
-            }
-            if (timerForAdd.Elapsed.TotalSeconds > 5)
-            {
+            SpawnPowerUp();
+                
+            ExplosionEffectsCleaner();
 
-                timerForAdd.Reset();
-                timerForAdd.Start();
-                if (GameObject.FindGameObjectsWithTag("WallofBox").Length < 4) StartCoroutine(Cycle());
-
-
-            }
+            CheckForSpawnEnemy();
 
 
         }
 
-      
-
-
     }
 
-     
+    void SingleEnemySpawnOnKill()
+    {
+        if (countEnemys.countKills > 0)
+        {
 
-   
+            StartCoroutine(Cycle());
+            countEnemyEnd++;
+            countEnemys.countKills -= 1;
+            countPowerUp++;
+
+            if (countEnemyEnd > 19 && permissionWin)
+            {
+                countEnemys.FinishGame();
+                permissionWin = false;
+
+            }
+
+            countEnemy.text = "The remaining enemies:" + (20 - countEnemyEnd);
+        }
+    }
+     void CheckForSpawnEnemy()
+    {
+        if (timerForAdd.Elapsed.TotalSeconds > 5)
+        {
+
+            timerForAdd.Reset();
+            timerForAdd.Start();
+            if (GameObject.FindGameObjectsWithTag("WallofBox").Length < 4) StartCoroutine(Cycle());
+        }
+    }
+    void ExplosionEffectsCleaner()
+    {
+        if (timerForRemove.Elapsed.TotalSeconds > 9)
+        {
+            particles = GameObject.FindGameObjectsWithTag("Explosive");
+            for (int i = 0; i < particles.Length; i++)
+            {
+                particles2.Add(particles[i]);
+                Destroy(particles[i]);
+            }
+
+            timerForRemove.Reset();
+            timerForRemove.Start();
+            particles2.Clear();
+
+
+        }
+    }
+
+
 
     void SpawnPowerUp()
+    {
+        if (countEnemys.countPickup > 0 && countPowerUp > 3)
+        {
+            SingleSpawnPowerUp();
+
+            countEnemys.countPickup = 0; // Обнуление количества подобранных поверапов
+            countPowerUp = 0; // обнуление количества убитых врагов
+        }
+            
+    }
+
+    void SingleSpawnPowerUp ()
     {
         spawnPosition = new Vector3(Random.Range(xleftRange, xrightRange), yRange, Random.Range(zDownRange, zUpRange));
         GameObject gameObject = powerUp;
@@ -225,7 +240,7 @@ public class SpawnManager : MonoBehaviour
              playerPos = GameObject.FindGameObjectWithTag("Player");
             CycleFunc();
         }
-        SpawnPowerUp();
+        SingleSpawnPowerUp();
 
 
         timerForRemove = new Stopwatch();

@@ -12,7 +12,7 @@ public class PlayerController : MonoBehaviour
 {
     // Start is called before the first frame update
     
-    private float speed = 750f;
+    private float speed = 1050f;
     private float devider = 5f;
     
     private float jumpForce = 12.5f;
